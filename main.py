@@ -2,7 +2,10 @@ import cv2
 import cv2 as cv
 import numpy
 import pickle
+import pyfirmata
+import time
 
+arduino = pyfirmata.Arduino("COM3")
 img = cv.imread("dataset/image.jpg")
 
 face_data = cv2.CascadeClassifier("haarcascade/haarcascade_frontalface_alt2.xml")
@@ -31,7 +34,17 @@ while True:
             nameOfPerson = labels[id_]
             cv2.putText(img, nameOfPerson, (x,y),fontStyle,1, (255,255,255),2,cv.LINE_AA)
             cv2.putText(img, "Authorized", (0,50),fontStyle,1, (255,255,255),2,cv.LINE_AA)
+            if(nameOfPerson == "adrian"):
+                arduino.digital[13].write(True) #Zöld
+            elif(nameOfPerson == "stevejobs"):
+                arduino.digital[7].write(True) #Piros
+            else:
+                arduino.digital[11].write(True) #Sárga
 
+        else:
+            arduino.digital[13].write(False)
+            arduino.digital[7].write(False)
+            arduino.digital[11].write(False)
         cv2.imwrite("dataset/Adrian/img10.png", face_gray)
 
     cv2.imshow("VId", img)
