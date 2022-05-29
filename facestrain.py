@@ -4,6 +4,7 @@ from PIL import Image
 import cv2 as cv
 import pickle
 
+print("MASALLAH")
 baseDirectory = os.path.dirname(os.path.abspath(__file__))
 print(baseDirectory)
 imgDirectory = os.path.join(baseDirectory, "dataset")
