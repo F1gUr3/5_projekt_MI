@@ -8,6 +8,9 @@
 import pyfirmata
 import time
 
+#[Teszt Szoftver]
+# Ez a szoftver kizárólag az Arduino alaplap tesztelésére szolgál, amennyiben ez a szoftver hibát talál, hiba van a hardveres rétegben.
+
 arduino = pyfirmata.Arduino("COM3")
 
 while True:

@@ -16,7 +16,7 @@ import os
 baseDirectory = os.path.dirname(os.path.abspath(__file__))
 imgDirectory = os.path.join(baseDirectory, "dataset")
 
-#arduino = pyfirmata.Arduino("COM3") #Arduino meghívása #ARDUINO SZÜKSÉGES A FUTTATASHOZ
+arduino = pyfirmata.Arduino("COM3") #Arduino meghívása #ARDUINO SZÜKSÉGES A FUTTATASHOZ
 img = cv.imread("dataset/image.jpg")
 
 face_data = cv2.CascadeClassifier("haarcascade/haarcascade_frontalface_alt2.xml")
@@ -61,18 +61,21 @@ def chooseNewFaceDirectory():
         file.close()
     return folder_selected
 
+confLevels = False
 
 
 
 try:
 
     while True:
+        #Kikapcsolja a hiba jelző ledet
+        arduino.digital[11].write(False)
+
         window.update()
         _, img = capture.read()
 
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = face_data.detectMultiScale(gray, 1.1, 4)
-
 
         for (x,y,w,h) in faces:
             cv2.rectangle(img, (x,y),(x+w, y+h), (255,100,50),5)
@@ -84,29 +87,39 @@ try:
                 nameOfPerson = labels[id_]
                 cv2.putText(img, nameOfPerson, (x,y),fontStyle,1, (255,255,255),2,cv.LINE_AA)
                 print(f'{nameOfPerson}-AUTHORIZED.txt')
+                confLevels = True
+            else:
+                confLevels = False
+
+
             try:
-                if os.path.isfile(os.path.join(imgDirectory, f'{nameOfPerson}-AUTHORIZED.txt')) == False and nameOfPerson != "Buffering":
-                    cv2.putText(img, "UnAuthorized", (x+100,y),fontStyle,1, (255,255,255),2,cv.LINE_AA)
-                    # arduino.digital[13].write(False)
-                    # arduino.digital[11].write(False) #ARDUINO SZÜKSÉGES A FUTTATASHOZ
-                    # arduino.digital[7].write(True)
-                elif os.path.isfile(os.path.join(imgDirectory, f'{nameOfPerson}-AUTHORIZED.txt')):
-                    cv2.putText(img, "Authorized", (x+100,y),fontStyle,1, (255,255,255),2,cv.LINE_AA)
-                    # arduino.digital[13].write(True)
-                    # arduino.digital[11].write(False)  #ARDUINO SZÜKSÉGES A FUTTATASHOZ
-                    # arduino.digital[7].write(False)
+                if os.path.isfile(os.path.join(imgDirectory, f'{nameOfPerson}-UNAUTHORIZED.txt')) == True and confLevels == True:
+                    cv2.putText(img, f"{nameOfPerson} UnAuthorized", (x,y),fontStyle,1, (0,0,255),2,cv.LINE_AA)
+                    arduino.digital[13].write(False)
+                    arduino.digital[11].write(False) #ARDUINO SZÜKSÉGES A FUTTATASHOZ
+                    arduino.digital[7].write(True)
+                elif os.path.isfile(os.path.join(imgDirectory, f'{nameOfPerson}-AUTHORIZED.txt')) and confLevels == True:
+                    cv2.putText(img, f"{nameOfPerson} Authorized", (x,y),fontStyle,1, (0,255,0),2,cv.LINE_AA)
+                    arduino.digital[13].write(True)
+                    arduino.digital[11].write(False)  #ARDUINO SZÜKSÉGES A FUTTATASHOZ
+                    arduino.digital[7].write(False)
+                elif confLevels == False:
+                    arduino.digital[13].write(False)
+                    arduino.digital[11].write(True)  # ARDUINO SZÜKSÉGES A FUTTATASHOZ
+                    arduino.digital[7].write(False)
 
-                else:
-                    cv2.putText(img, "Unkown", (x, y+100),fontStyle,1, (255,255,255),2,cv.LINE_AA)
-                    # arduino.digital[13].write(False)
-                    # arduino.digital[11].write(True)  #ARDUINO SZÜKSÉGES A FUTTATASHOZ
-                    # arduino.digital[7].write(False)
 
-                nameOfPerson = "Buffering"
+
+
+
+
             except(NameError):
                 fontStyle = cv.FONT_ITALIC
                 cv2.putText(img, "Error", (x + 100, y), fontStyle, 1, (255, 255, 255), 2, cv.LINE_AA)
-
+                arduino.digital[13].write(False)
+                #Felkapcsolja a hiba jelző ledet
+                arduino.digital[11].write(True)  #ARDUINO SZÜKSÉGES A FUTTATASHOZ
+                arduino.digital[7].write(False)
                 #if(nameOfPerson == "adrian"):
                     #arduino.digital[13].write(True) #Zöld
                 #elif(nameOfPerson == "stevejobs"):
