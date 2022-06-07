@@ -17,7 +17,7 @@ import os
 baseDirectory = os.path.dirname(os.path.abspath(__file__))
 imgDirectory = os.path.join(baseDirectory, "dataset")
 #Inicializáljuk az arduinot, későbbi használatra
-arduino = pyfirmata.Arduino("COM3") #Arduino meghívása #ARDUINO SZÜKSÉGES A FUTTATASHOZ
+#arduino = pyfirmata.Arduino("COM3") #Arduino meghívása #ARDUINO SZÜKSÉGES A FUTTATASHOZ
 
 #Meghatározzuk a CV2-es haarcascade segítségével, hogy milyen alakzatokat keresünk, jelen esetben fejeket.
 face_data = cv2.CascadeClassifier("haarcascade/haarcascade_frontalface_alt2.xml")
@@ -105,20 +105,21 @@ try:
                 #Ha a jelenleg felismert személyhez társítottunk 'UNAUTHORIZED' azaz nincs felhatalmazása azonosítot abban az esetben a piros ledet kapcsolja fel, és írja ki a személy nevét és azt hogy 'UNAUTHORIZED
                 if os.path.isfile(os.path.join(imgDirectory, f'{nameOfPerson}-UNAUTHORIZED.txt')) == True and confLevels == True:
                     cv2.putText(img, f"{nameOfPerson} UnAuthorized", (x,y),fontStyle,1, (0,0,255),2,cv.LINE_AA)
-                    arduino.digital[13].write(False)
-                    arduino.digital[11].write(False) #ARDUINO SZÜKSÉGES A FUTTATASHOZ
-                    arduino.digital[7].write(True)
+                    # arduino.digital[13].write(False)
+                    # arduino.digital[11].write(False) #ARDUINO SZÜKSÉGES A FUTTATASHOZ
+                    # arduino.digital[7].write(True)
                 #Ha a jelenleg felismert személyhez társítottunk 'AUTHORIZED' azaz van felhatalmazása azonosítot abban az esetben a zöld ledet kapcsolja fel, és írja ki a személy nevét és azt hogy 'AUTHORIZED
                 elif os.path.isfile(os.path.join(imgDirectory, f'{nameOfPerson}-AUTHORIZED.txt')) and confLevels == True:
                     cv2.putText(img, f"{nameOfPerson} Authorized", (x,y),fontStyle,1, (0,255,0),2,cv.LINE_AA)
-                    arduino.digital[13].write(True)
-                    arduino.digital[11].write(False)  #ARDUINO SZÜKSÉGES A FUTTATASHOZ
-                    arduino.digital[7].write(False)
+                    # arduino.digital[13].write(True)
+                    # arduino.digital[11].write(False)  #ARDUINO SZÜKSÉGES A FUTTATASHOZ
+                    # arduino.digital[7].write(False)
                 #felismert arc, de nem eltárolt profil
                 elif confLevels == False:
-                    arduino.digital[13].write(False)
-                    arduino.digital[11].write(True)  # ARDUINO SZÜKSÉGES A FUTTATASHOZ
-                    arduino.digital[7].write(False)
+                    cv2.putText(img, f"Nem Ismert", (x,y),fontStyle,1, (0,255,255),2,cv.LINE_AA)
+                    # arduino.digital[13].write(False)
+                    # arduino.digital[11].write(True)  # ARDUINO SZÜKSÉGES A FUTTATASHOZ
+                    # arduino.digital[7].write(False)
 
 
 
@@ -128,10 +129,10 @@ try:
             except(NameError):
                 fontStyle = cv.FONT_ITALIC
                 cv2.putText(img, "Error", (x + 100, y), fontStyle, 1, (255, 255, 255), 2, cv.LINE_AA)
-                arduino.digital[13].write(False)
+                #arduino.digital[13].write(False)
                 #Felkapcsolja a hiba jelző ledet
-                arduino.digital[11].write(True)  #ARDUINO SZÜKSÉGES A FUTTATASHOZ
-                arduino.digital[7].write(False)
+                #arduino.digital[11].write(True)  #ARDUINO SZÜKSÉGES A FUTTATASHOZ
+                #arduino.digital[7].write(False)
                 #if(nameOfPerson == "adrian"):
                     #arduino.digital[13].write(True) #Zöld
                 #elif(nameOfPerson == "stevejobs"):
